@@ -1,23 +1,23 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const auth = require("../common/auth")();
-const { Post, validatePost } = require("../models/post");
-const { Tag } = require("../models/tag");
-const wrapper = require("../common/wrapper");
+const auth = require('../common/auth')();
+const { Post, validatePost } = require('../models/post');
+const { Tag } = require('../models/tag');
+const wrapper = require('../common/wrapper'); // async await 함수를 사용하다보면 error가 발생하게 되는데 얘가 대신 모든 에러를 캐치함.
 
 router.post(
-  "/",
-  auth.authenticate(),
+  '/',
+  auth.authenticate(), // 인증에 관한 것.
   wrapper(async (req, res, next) => {
     if (!req.user.admin) {
-      res.json({ error: "unauthorized" });
+      res.json({ error: 'unauthorized' });
       next();
       return;
     }
     const { title, contents, tags } = req.body;
     // tags: asd9125kasdgj341254 fasdklj2365kljAAA AKLSDJGAKL1351askldjg
     if (validatePost(req.body).error) {
-      res.status(400).json({ result: false, error: "양식에 맞지 않음" });
+      res.status(400).json({ result: false, error: '양식에 맞지 않음' });
       next();
       return;
     }
@@ -41,26 +41,26 @@ router.post(
 );
 
 router.get(
-  "/",
+  '/',
   wrapper(async (req, res, next) => {
-    const { tag, page = "1" } = req.query;
+    const { tag, page = '1' } = req.query;
     const skip = parseInt(page) * 5 - 5;
 
     if (tag) {
       const posts = await Post.find()
-        .where("tags")
+        .where('tags')
         .in(tag)
         .skip(skip)
         .limit(5)
-        .sort("-date")
-        .populate("tags");
+        .sort('-date')
+        .populate('tags');
       res.json({ posts });
     } else {
       const posts = await Post.find()
         .limit(5)
         .skip(skip)
-        .sort("-date")
-        .populate("tags");
+        .sort('-date')
+        .populate('tags');
       res.json({ posts });
     }
     next();
@@ -68,20 +68,20 @@ router.get(
 );
 
 router.get(
-  "/:id",
+  '/:id',
   wrapper(async (req, res, next) => {
-    const post = await Post.findById(req.params.id).populate("tags");
+    const post = await Post.findById(req.params.id).populate('tags');
     res.json(post);
     next();
   })
 );
 
 router.patch(
-  "/:id",
+  '/:id',
   auth.authenticate(),
   wrapper(async (req, res, next) => {
     if (!req.user.admin) {
-      res.json({ error: "unauthorized" });
+      res.json({ error: 'unauthorized' });
       next();
       return;
     }
@@ -92,11 +92,11 @@ router.patch(
 );
 
 router.delete(
-  "/:id",
+  '/:id',
   auth.authenticate(),
   wrapper(async (req, res, next) => {
     if (!req.user.admin) {
-      res.json({ error: "unauthorized" });
+      res.json({ error: 'unauthorized' });
       next();
       return;
     }
